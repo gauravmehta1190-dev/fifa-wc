@@ -281,6 +281,63 @@ testSuite.addTest(
   }
 );
 
+testSuite.addTest(
+  "XSS Sanitization - HTML Escaping",
+  "Verifies that escapeHTML utility strips tags to prevent Cross-Site Scripting (XSS).",
+  () => {
+    const maliciousInput = "<script>alert('xss')</script><img src=x onerror=critical()>";
+    const sanitized = escapeHTML(maliciousInput);
+    
+    assertTrue(!sanitized.includes("<script>"), "Sanitized text should contain no raw script tags");
+    assertTrue(sanitized.includes("&lt;script&gt;"), "Tags must be escaped to &lt; and &gt; entities");
+  }
+);
+
+testSuite.addTest(
+  "Simulation Controller - Environment Reset",
+  "Verifies resetting simulation clears active incidents and restores default telemetry metrics.",
+  () => {
+    // Pollute state
+    appState.gates.A.queueTime = 45.0;
+    appState.incidents.push({ type: 'gate_malfunction', description: 'Test Incident' });
+    
+    resetSimulation();
+    
+    assertEquals(appState.incidents.length, 0, "Incidents should be cleared after reset");
+    assertEquals(appState.gates.A.queueTime, 3.2, "Gate A queue time should restore to default (3.2m)");
+  }
+);
+
+testSuite.addTest(
+  "Map View - Toggle Layers Visibility",
+  "Verifies switchMapView correctly updates active class selections and sets aria-selected properties.",
+  () => {
+    switchMapView('google');
+    
+    const svgTab = document.getElementById("map-tab-svg");
+    const googleTab = document.getElementById("map-tab-google");
+    const googleContainer = document.getElementById("google-map-container");
+    
+    assertEquals(googleTab.classList.contains("active"), true, "Google map tab should be active");
+    assertEquals(svgTab.classList.contains("active"), false, "SVG map tab should not be active");
+    assertEquals(googleTab.getAttribute("aria-selected"), "true", "Google tab aria-selected must be true");
+    assertEquals(googleContainer.classList.contains("hidden"), false, "Google map container should be visible");
+    
+    // Restore default
+    switchMapView('svg');
+  }
+);
+
+testSuite.addTest(
+  "Foreign Language Translation - German query check",
+  "Verifies German input maps to correct English query representation.",
+  () => {
+    const res = analyzeUrgencyAndTranslate("Wo kann ich mein Ticket scannen?");
+    assertEquals(res.translation, "Where can I scan my ticket?", "Should map German scan query to English translation preset");
+    assertEquals(res.isUrgent, false, "Scan ticket should be low urgency");
+  }
+);
+
 // Global Exposure for browser testing console
 window.testSuite = testSuite;
 window.runTestSuite = function(onTestComplete, onFinished) {

@@ -15,8 +15,8 @@
 </head>
 <body>
   <!-- Background ambient glow -->
-  <div class="ambient-glow bg-glow-1"></div>
-  <div class="ambient-glow bg-glow-2"></div>
+  <div class="ambient-glow bg-glow-1" aria-hidden="true"></div>
+  <div class="ambient-glow bg-glow-2" aria-hidden="true"></div>
 
   <!-- Header -->
   <header class="app-header">
@@ -66,26 +66,26 @@
           <div class="sim-speed-selector">
             <label for="speed-range">Simulation Speed:</label>
             <div class="speed-controls">
-              <input type="range" id="speed-range" min="1" max="10" value="1" step="1">
+              <input type="range" id="speed-range" min="1" max="10" value="1" step="1" aria-label="Simulation Speed controller" aria-describedby="speed-display">
               <span id="speed-display">1x</span>
             </div>
           </div>
 
           <div class="incident-buttons">
-            <button class="btn btn-control" onclick="triggerSimIncident('gate_malfunction', 'Gate B Card Reader Failure')">
-              <span class="indicator red"></span> Gate B Scanner Fail
+            <button class="btn btn-control" onclick="triggerSimIncident('gate_malfunction', 'Gate B Card Reader Failure')" aria-label="Trigger Incident: Gate B Scanner Failure (Critical status)">
+              <span class="indicator red" aria-hidden="true"></span> Gate B Scanner Fail
             </button>
-            <button class="btn btn-control" onclick="triggerSimIncident('corridor_block', 'East Corridor Overcrowding')">
-              <span class="indicator orange"></span> Corridor East Surge
+            <button class="btn btn-control" onclick="triggerSimIncident('corridor_block', 'East Corridor Overcrowding')" aria-label="Trigger Incident: Corridor East Crowd Surge (Elevated status)">
+              <span class="indicator orange" aria-hidden="true"></span> Corridor East Surge
             </button>
-            <button class="btn btn-control" onclick="triggerSimIncident('medical_emergency', 'Medical Alert in Zone 2')">
-              <span class="indicator red"></span> Medical Alert Zone 2
+            <button class="btn btn-control" onclick="triggerSimIncident('medical_emergency', 'Medical Alert in Zone 2')" aria-label="Trigger Incident: Medical Emergency Alert (Critical status)">
+              <span class="indicator red" aria-hidden="true"></span> Medical Alert Zone 2
             </button>
-            <button class="btn btn-control" onclick="triggerSimIncident('rain_surge', 'Sudden Heavy Rain Gate A')">
-              <span class="indicator cyan"></span> Heavy Rain Gate A
+            <button class="btn btn-control" onclick="triggerSimIncident('rain_surge', 'Sudden Heavy Rain Gate A')" aria-label="Trigger Incident: Sudden Weather Surge Gate A (Normal weather status)">
+              <span class="indicator cyan" aria-hidden="true"></span> Heavy Rain Gate A
             </button>
           </div>
-          <button class="btn btn-primary w-full mt-3" id="reset-sim-btn" onclick="resetSimulation()">
+          <button class="btn btn-primary w-full mt-3" id="reset-sim-btn" onclick="resetSimulation()" aria-label="Reset simulation environment to default metrics">
             Reset Environment
           </button>
         </div>
@@ -107,7 +107,7 @@
               <p class="dropzone-main-text">Drag CSV here or <span>browse files</span></p>
               <p class="dropzone-sub-text">Headers: Timestamp, ElementType, ElementID, Parameter, Value, Description</p>
             </div>
-            <input type="file" id="csv-file-input" accept=".csv">
+            <input type="file" id="csv-file-input" accept=".csv" aria-label="Upload CSV Matchday Telemetry File">
           </div>
           
           <div class="sample-downloader">
@@ -143,7 +143,7 @@
           </div>
         </div>
         <div class="card-body p-0 log-body">
-          <div id="live-incident-log" class="terminal-log">
+          <div id="live-incident-log" class="terminal-log" role="log" aria-live="polite">
             <!-- Dynamic Telemetry Log -->
           </div>
         </div>
@@ -156,22 +156,22 @@
       <div class="kpi-grid">
         <div class="kpi-card glass-card">
           <div class="kpi-label">Avg Gate Queue</div>
-          <div class="kpi-value text-cyan" id="kpi-queue-time">3.4 min</div>
+          <div class="kpi-value text-cyan" id="kpi-queue-time" aria-live="polite">3.4 min</div>
           <div class="kpi-trend text-green">↓ 0.8m from normal</div>
         </div>
         <div class="kpi-card glass-card">
           <div class="kpi-label">Total Inflow Rate</div>
-          <div class="kpi-value text-emerald" id="kpi-inflow-rate">452 p/m</div>
+          <div class="kpi-value text-emerald" id="kpi-inflow-rate" aria-live="polite">452 p/m</div>
           <div class="kpi-trend text-emerald">Optimal flow</div>
         </div>
         <div class="kpi-card glass-card">
           <div class="kpi-label">Stadium Occupancy</div>
-          <div class="kpi-value text-cyan" id="kpi-occupancy">68.2%</div>
+          <div class="kpi-value text-cyan" id="kpi-occupancy" aria-live="polite">68.2%</div>
           <div class="kpi-trend">68,200 / 100K</div>
         </div>
         <div class="kpi-card glass-card">
           <div class="kpi-label">Active Incidents</div>
-          <div class="kpi-value text-red" id="kpi-incidents">0</div>
+          <div class="kpi-value text-red" id="kpi-incidents" aria-live="polite">0</div>
           <div class="kpi-trend" id="kpi-incidents-trend">Nominal safety</div>
         </div>
       </div>
@@ -179,9 +179,9 @@
       <!-- Stadium Map Visualizer -->
       <div class="card glass-card flex-grow map-card">
         <div class="map-toolbar">
-          <div class="map-view-tabs">
-            <button class="map-view-btn active" id="map-tab-svg" onclick="switchMapView('svg')">STADIUM INTERIOR</button>
-            <button class="map-view-btn" id="map-tab-google" onclick="switchMapView('google')">GEOGRAPHIC EXTERIOR (GCP MAPS)</button>
+          <div class="map-view-tabs" role="tablist" aria-label="Map View Layers">
+            <button class="map-view-btn active" id="map-tab-svg" role="tab" aria-selected="true" aria-controls="stadium-svg" onclick="switchMapView('svg')">STADIUM INTERIOR</button>
+            <button class="map-view-btn" id="map-tab-google" role="tab" aria-selected="false" aria-controls="google-map-container" onclick="switchMapView('google')">GEOGRAPHIC EXTERIOR (GCP MAPS)</button>
           </div>
           <div class="map-legend">
             <span class="legend-item"><span class="legend-dot green"></span> Safe</span>
@@ -251,28 +251,28 @@
 
             <!-- GATES (Interactive Circles and Status rings) -->
             <!-- Gate A (North) -->
-            <g class="gate-group" id="gate-group-A" onclick="selectMapElement('Gate A')">
+            <g class="gate-group" id="gate-group-A" onclick="selectMapElement('Gate A')" onkeypress="if(event.key==='Enter'||event.key===' '){selectMapElement('Gate A');}" role="button" tabindex="0" aria-label="Gate A North Entrance and turnstiles">
               <circle cx="400" cy="70" r="16" class="gate-outer" id="gate-outer-A"/>
               <circle cx="400" cy="70" r="10" class="gate-inner" id="gate-inner-A"/>
               <text x="400" y="45" class="gate-label">GATE A (North)</text>
             </g>
 
             <!-- Gate B (West) -->
-            <g class="gate-group" id="gate-group-B" onclick="selectMapElement('Gate B')">
+            <g class="gate-group" id="gate-group-B" onclick="selectMapElement('Gate B')" onkeypress="if(event.key==='Enter'||event.key===' '){selectMapElement('Gate B');}" role="button" tabindex="0" aria-label="Gate B West Entrance and turnstiles">
               <circle cx="80" cy="300" r="16" class="gate-outer" id="gate-outer-B"/>
               <circle cx="80" cy="300" r="10" class="gate-inner" id="gate-inner-B"/>
               <text x="50" y="275" class="gate-label text-right">GATE B (West)</text>
             </g>
 
             <!-- Gate C (South) -->
-            <g class="gate-group" id="gate-group-C" onclick="selectMapElement('Gate C')">
+            <g class="gate-group" id="gate-group-C" onclick="selectMapElement('Gate C')" onkeypress="if(event.key==='Enter'||event.key===' '){selectMapElement('Gate C');}" role="button" tabindex="0" aria-label="Gate C South Entrance and turnstiles">
               <circle cx="400" cy="530" r="16" class="gate-outer" id="gate-outer-C"/>
               <circle cx="400" cy="530" r="10" class="gate-inner" id="gate-inner-C"/>
               <text x="400" y="565" class="gate-label">GATE C (South)</text>
             </g>
 
             <!-- Gate D (East) -->
-            <g class="gate-group" id="gate-group-D" onclick="selectMapElement('Gate D')">
+            <g class="gate-group" id="gate-group-D" onclick="selectMapElement('Gate D')" onkeypress="if(event.key==='Enter'||event.key===' '){selectMapElement('Gate D');}" role="button" tabindex="0" aria-label="Gate D East Entrance and turnstiles">
               <circle cx="720" cy="300" r="16" class="gate-outer" id="gate-outer-D"/>
               <circle cx="720" cy="300" r="10" class="gate-inner" id="gate-inner-D"/>
               <text x="750" y="275" class="gate-label text-left">GATE D (East)</text>
@@ -280,12 +280,12 @@
 
             <!-- Facilities (Food and Medical) -->
             <!-- Medical Bay West -->
-            <rect id="facility-medical" x="180" y="280" width="30" height="30" rx="4" fill="#1F283E" stroke="#FF2E93" stroke-width="2" onclick="selectMapElement('Medical Center')"/>
+            <rect id="facility-medical" x="180" y="280" width="30" height="30" rx="4" fill="#1F283E" stroke="#FF2E93" stroke-width="2" onclick="selectMapElement('Medical Center')" onkeypress="if(event.key==='Enter'||event.key===' '){selectMapElement('Medical Center');}" role="button" tabindex="0" aria-label="West First Aid Medical Care Facility"/>
             <path d="M 195 285 L 195 305 M 185 295 L 205 295" stroke="#FF2E93" stroke-width="3" />
             <text x="195" y="325" class="map-sub-label">MED-WEST</text>
 
             <!-- Food Court East -->
-            <rect id="facility-food" x="590" y="280" width="30" height="30" rx="4" fill="#1F283E" stroke="#00FFA3" stroke-width="2" onclick="selectMapElement('Food Court East')"/>
+            <rect id="facility-food" x="590" y="280" width="30" height="30" rx="4" fill="#1F283E" stroke="#00FFA3" stroke-width="2" onclick="selectMapElement('Food Court East')" onkeypress="if(event.key==='Enter'||event.key===' '){selectMapElement('Food Court East');}" role="button" tabindex="0" aria-label="East Plaza Halftime Food Court"/>
             <!-- Custom Fork and Spoon icon in SVG -->
             <path d="M 598 288 V 298 M 602 288 V 298 M 600 298 V 306 M 612 288 C 612 296 606 296 606 296 M 608 296 V 306" stroke="#00FFA3" stroke-width="2" fill="none"/>
             <text x="605" y="325" class="map-sub-label">FOOD-EAST</text>
@@ -304,9 +304,9 @@
     <section class="grid-panel panel-right" aria-label="XAI engine and alerts">
       
       <!-- Toggle buttons for XAI Director vs Volunteer Mobile Phone Simulator -->
-      <div class="panel-tabs">
-        <button class="tab-btn active" id="tab-xai" onclick="switchRightPanel('xai')">AI Operations Director</button>
-        <button class="tab-btn" id="tab-volunteer" onclick="switchRightPanel('volunteer')">Volunteer Handset</button>
+      <div class="panel-tabs" role="tablist" aria-label="Control Room Views">
+        <button class="tab-btn active" id="tab-xai" role="tab" aria-selected="true" aria-controls="content-xai" onclick="switchRightPanel('xai')">AI Operations Director</button>
+        <button class="tab-btn" id="tab-volunteer" role="tab" aria-selected="false" aria-controls="content-volunteer" onclick="switchRightPanel('volunteer')">Volunteer Handset</button>
       </div>
 
       <!-- TAB 1: AI Operations Director (Dashboard Center) -->
@@ -340,19 +340,19 @@
           <div class="card-body">
             <p class="section-desc">Approve generated alerts to broadcast directly to fans' mobile apps.</p>
             
-            <div class="broadcast-languages">
-              <div class="language-tab active" id="lang-tab-en" onclick="switchBroadcastLang('en')">EN (English)</div>
-              <div class="language-tab" id="lang-tab-es" onclick="switchBroadcastLang('es')">ES (Spanish)</div>
-              <div class="language-tab" id="lang-tab-fr" onclick="switchBroadcastLang('fr')">FR (French)</div>
+            <div class="broadcast-languages" role="tablist" aria-label="Alert Language Templates">
+              <button type="button" class="language-tab active" id="lang-tab-en" role="tab" aria-selected="true" onclick="switchBroadcastLang('en')">EN (English)</button>
+              <button type="button" class="language-tab" id="lang-tab-es" role="tab" aria-selected="false" onclick="switchBroadcastLang('es')">ES (Spanish)</button>
+              <button type="button" class="language-tab" id="lang-tab-fr" role="tab" aria-selected="false" onclick="switchBroadcastLang('fr')">FR (French)</button>
             </div>
 
             <div class="broadcast-text-box">
-              <textarea id="broadcast-textarea" readonly>Select an active AI recommendation to edit and broadcast the crowd notification.</textarea>
+              <textarea id="broadcast-textarea" readonly aria-label="Broadcast alert text script">Select an active AI recommendation to edit and broadcast the crowd notification.</textarea>
             </div>
 
             <div class="broadcast-actions">
-              <button class="btn btn-secondary" id="decline-alert-btn" onclick="declineAlert()" disabled>Decline</button>
-              <button class="btn btn-primary" id="broadcast-alert-btn" onclick="sendBroadcast()" disabled>Approve & Broadcast</button>
+              <button class="btn btn-secondary" id="decline-alert-btn" onclick="declineAlert()" aria-label="Decline AI redirection recommendation" disabled>Decline</button>
+              <button class="btn btn-primary" id="broadcast-alert-btn" onclick="sendBroadcast()" aria-label="Approve and broadcast AI redirection recommendation alert" disabled>Approve & Broadcast</button>
             </div>
           </div>
         </div>
@@ -387,7 +387,7 @@
                   <strong class="toast-title">COMMAND ALERT</strong>
                   <p id="phone-toast-msg">No active commands.</p>
                 </div>
-                <button class="toast-close" onclick="closePhoneToast()">×</button>
+                <button class="toast-close" onclick="closePhoneToast()" aria-label="Close Mobile Broadcast Alert Toast">×</button>
               </div>
 
               <!-- Zone Status Briefing -->
@@ -436,8 +436,8 @@
                 </div>
 
                 <div class="chat-input-row">
-                  <input type="text" id="volunteer-chat-input" placeholder="Type fan query / translate text...">
-                  <button class="btn btn-primary btn-chat-send" onclick="sendVolunteerChat()">
+                  <input type="text" id="volunteer-chat-input" placeholder="Type fan query / translate text..." aria-label="Volunteer translator chat message query text">
+                  <button class="btn btn-primary btn-chat-send" onclick="sendVolunteerChat()" aria-label="Send query to Co-Pilot Chatbot">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg>
                   </button>
                 </div>

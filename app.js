@@ -93,6 +93,11 @@ function resetSimulation() {
   appState.activeRecommendations = [];
   appState.selectedRecommendation = null;
   
+  // Clear crowd particles
+  const layer = document.getElementById("particle-layer");
+  if (layer) layer.innerHTML = "";
+  particles = [];
+  
   updateMapVisuals();
   updateKPIs();
   renderXAIRecommendations();
@@ -326,8 +331,14 @@ function switchBroadcastLang(lang) {
   // Update class active tags
   document.querySelectorAll(".broadcast-languages .language-tab").forEach(tab => {
     tab.classList.remove("active");
+    tab.setAttribute("aria-selected", "false");
   });
-  document.getElementById(`lang-tab-${lang}`).classList.add("active");
+  
+  const activeTab = document.getElementById(`lang-tab-${lang}`);
+  if (activeTab) {
+    activeTab.classList.add("active");
+    activeTab.setAttribute("aria-selected", "true");
+  }
   
   updateBroadcastText();
 }
@@ -449,17 +460,34 @@ function triggerSimIncident(type, desc) {
 
 // Volunteer App panel controls
 function switchRightPanel(tabName) {
-  document.getElementById("tab-xai").classList.remove("active");
-  document.getElementById("tab-volunteer").classList.remove("active");
-  document.getElementById("content-xai").classList.add("hidden");
-  document.getElementById("content-volunteer").classList.add("hidden");
+  const tabXai = document.getElementById("tab-xai");
+  const tabVol = document.getElementById("tab-volunteer");
+  const contentXai = document.getElementById("content-xai");
+  const contentVol = document.getElementById("content-volunteer");
+
+  if (tabXai) {
+    tabXai.classList.remove("active");
+    tabXai.setAttribute("aria-selected", "false");
+  }
+  if (tabVol) {
+    tabVol.classList.remove("active");
+    tabVol.setAttribute("aria-selected", "false");
+  }
+  if (contentXai) contentXai.classList.add("hidden");
+  if (contentVol) contentVol.classList.add("hidden");
 
   if (tabName === 'xai') {
-    document.getElementById("tab-xai").classList.add("active");
-    document.getElementById("content-xai").classList.remove("hidden");
+    if (tabXai) {
+      tabXai.classList.add("active");
+      tabXai.setAttribute("aria-selected", "true");
+    }
+    if (contentXai) contentXai.classList.remove("hidden");
   } else {
-    document.getElementById("tab-volunteer").classList.add("active");
-    document.getElementById("content-volunteer").classList.remove("hidden");
+    if (tabVol) {
+      tabVol.classList.add("active");
+      tabVol.setAttribute("aria-selected", "true");
+    }
+    if (contentVol) contentVol.classList.remove("hidden");
   }
 }
 
@@ -498,11 +526,31 @@ function sendVolunteerChat() {
   }, 600);
 }
 
+// HTML escaping utility to prevent Cross-Site Scripting (XSS)
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function appendChatBubble(sender, content, isUrgent = false) {
   const history = document.getElementById("volunteer-chat-history");
+  if (!history) return;
   const bubble = document.createElement("div");
   bubble.className = `chat-bubble ${sender} ${isUrgent ? 'urgent' : ''}`;
-  bubble.innerHTML = sender === 'user' ? `<p>${content}</p>` : content;
+  
+  if (sender === 'user') {
+    const p = document.createElement("p");
+    p.textContent = content; // Completely secure text node assignment
+    bubble.appendChild(p);
+  } else {
+    bubble.innerHTML = content; // Safe system-generated formatted HTML template
+  }
+  
   history.appendChild(bubble);
   history.scrollTop = history.scrollHeight;
 }
@@ -521,7 +569,7 @@ function analyzeUrgencyAndTranslate(text) {
     };
   }
 
-  // Spanish lost kid check: ¿Dónde está la salida? Mi hijo se ha perdido (Where is the exit? My son is lost)
+  // Spanish lost child check: ¿Dónde está la salida? Mi hijo se ha perdido
   if (lower.includes("perdido") || lower.includes("hijo") || lower.includes("niño")) {
     return {
       translation: "Where is the exit? My son is lost.",
@@ -534,7 +582,7 @@ function analyzeUrgencyAndTranslate(text) {
   // Medical collapses trigger
   if (lower.includes("collapsed") || lower.includes("breathing") || lower.includes("heart") || lower.includes("hurt") || lower.includes("emergency") || lower.includes("médico")) {
     return {
-      translation: text,
+      translation: escapeHTML(text),
       isUrgent: true,
       action: "CRITICAL: Medical Dispatch. Direct medical personnel to Seating Zone 2, Row 14. Keep bystanders clear.",
       script: "I have alerted the emergency response squad. Please stay where you are, help is on the way.",
@@ -544,7 +592,7 @@ function analyzeUrgencyAndTranslate(text) {
   // Casual presets
   if (lower.includes("vegan") || lower.includes("vegetarian") || lower.includes("food") || lower.includes("vegetariano")) {
     return {
-      translation: text,
+      translation: escapeHTML(text),
       isUrgent: false,
       action: "Nominal info. Direct fan to Food Court East (Sector 3). They have certified vegan options.",
       script: "Sure, for vegan food options, head straight down this corridor to Food-East near Sector 3.",
@@ -553,7 +601,7 @@ function analyzeUrgencyAndTranslate(text) {
 
   if (lower.includes("scan") || lower.includes("ticket") || lower.includes("entrada") || lower.includes("scannen")) {
     return {
-      translation: text.includes("scannen") ? "Where can I scan my ticket?" : text,
+      translation: text.includes("scannen") ? "Where can I scan my ticket?" : escapeHTML(text),
       isUrgent: false,
       action: "Nominal ticketing. Direct fan to turnstile readers. Assist if reader flashes amber.",
       script: "Hold your digital barcode 5 cm above the glass reader on turnstile 4.",
@@ -562,7 +610,7 @@ function analyzeUrgencyAndTranslate(text) {
 
   // Fallback translation
   return {
-    translation: text,
+    translation: escapeHTML(text),
     isUrgent: false,
     action: "Information query. Direct them to the nearest Information Kiosk located at Gate B.",
     script: "Let me check that for you. The information kiosk is located right behind Gate B.",
@@ -675,12 +723,23 @@ function spawnCrowdParticles() {
     { key: 'D', cx: 720, cy: 300, targetX: 620, targetY: 300 }
   ];
 
+  const layer = document.getElementById("particle-layer");
+  if (!layer) return;
+
   // Spawn new particles based on inflow rates
   gatesList.forEach(gateDef => {
     const gate = appState.gates[gateDef.key];
     // Spawn rate is proportional to flow rate
     const spawnChance = gate.flowRate / 150;
     if (Math.random() < spawnChance && particles.length < PARTICLE_LIMIT) {
+      const radius = 2.5 + (Math.random() * 2);
+      const color = gate.status === 'critical' ? 'var(--neon-crimson)' : (gate.status === 'warn' ? 'var(--neon-orange)' : 'var(--neon-cyan)');
+      
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("r", radius);
+      circle.setAttribute("fill", color);
+      layer.appendChild(circle);
+
       particles.push({
         x: gateDef.cx,
         y: gateDef.cy,
@@ -688,8 +747,9 @@ function spawnCrowdParticles() {
         targetY: gateDef.targetY,
         progress: 0,
         speed: 0.02 + (Math.random() * 0.015),
-        color: gate.status === 'critical' ? 'var(--neon-crimson)' : (gate.status === 'warn' ? 'var(--neon-orange)' : 'var(--neon-cyan)'),
-        radius: 2.5 + (Math.random() * 2)
+        radius: radius,
+        color: color,
+        element: circle
       });
     }
   });
@@ -699,25 +759,22 @@ function animateParticles() {
   const layer = document.getElementById("particle-layer");
   if (!layer) return;
 
-  // Clear previous rendering
-  layer.innerHTML = "";
-
-  particles.forEach((p, idx) => {
-    // Linear interpolation
+  particles.forEach((p) => {
     p.progress += p.speed;
     
-    // calculate current pos
-    const currX = p.x + (p.targetX - p.x) * p.progress;
-    const currY = p.y + (p.targetY - p.y) * p.progress;
+    if (p.progress >= 1.0) {
+      if (p.element && p.element.parentNode) {
+        p.element.parentNode.removeChild(p.element);
+      }
+    } else {
+      // Linear interpolation
+      const currX = p.x + (p.targetX - p.x) * p.progress;
+      const currY = p.y + (p.targetY - p.y) * p.progress;
 
-    // Create SVG element
-    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    circle.setAttribute("cx", currX);
-    circle.setAttribute("cy", currY);
-    circle.setAttribute("r", p.radius);
-    circle.setAttribute("fill", p.color);
-    circle.setAttribute("opacity", 1 - p.progress);
-    layer.appendChild(circle);
+      p.element.setAttribute("cx", currX);
+      p.element.setAttribute("cy", currY);
+      p.element.setAttribute("opacity", 1 - p.progress);
+    }
   });
 
   // Remove finished particles
@@ -1001,11 +1058,14 @@ function playNextCSVRow() {
   document.getElementById("playback-progress-fill").style.width = `${progressPercent}%`;
   document.getElementById("playback-line-count").innerText = `${appState.csvCurrentIndex}/${appState.csvRows.length}`;
 
-  // Log inside sandbox console
   const logConsole = document.getElementById("csv-log-box");
-  const msg = `[Row ${appState.csvCurrentIndex}] Set ${row.elementType}.${row.elementId} -> ${row.parameter}=${row.value}`;
-  logConsole.innerHTML += `<div>${msg}</div>`;
-  logConsole.scrollTop = logConsole.scrollHeight;
+  if (logConsole) {
+    const msg = `[Row ${appState.csvCurrentIndex}] Set ${row.elementType}.${row.elementId} -> ${row.parameter}=${row.value}`;
+    const div = document.createElement("div");
+    div.textContent = msg; // Secure from XSS
+    logConsole.appendChild(div);
+    logConsole.scrollTop = logConsole.scrollHeight;
+  }
 
   // Apply row instruction to simulation state
   applyCSVRowToState(row);
@@ -1191,16 +1251,20 @@ function switchMapView(viewType) {
   if (!tabSvg || !tabGoogle || !wrapperSvg || !containerMap) return;
 
   tabSvg.classList.remove("active");
+  tabSvg.setAttribute("aria-selected", "false");
   tabGoogle.classList.remove("active");
+  tabGoogle.setAttribute("aria-selected", "false");
   wrapperSvg.classList.add("hidden");
   containerMap.classList.add("hidden");
 
   if (viewType === 'svg') {
     tabSvg.classList.add("active");
+    tabSvg.setAttribute("aria-selected", "true");
     wrapperSvg.classList.remove("hidden");
     addLogEntry('SYSTEM', 'Switched display to stadium interior SVG schematic.', 'info');
   } else {
     tabGoogle.classList.add("active");
+    tabGoogle.setAttribute("aria-selected", "true");
     containerMap.classList.remove("hidden");
     addLogEntry('SYSTEM', 'Switched display to geographic exterior map (Google Maps JS API).', 'info');
     

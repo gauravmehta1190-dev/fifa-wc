@@ -24,13 +24,13 @@
   --neon-emerald-glow: rgba(0, 255, 163, 0.3);
   --neon-orange: #ff9f00;
   --neon-orange-glow: rgba(255, 159, 0, 0.3);
-  --neon-crimson: #ff2e93;
-  --neon-crimson-glow: rgba(255, 46, 147, 0.3);
+  --neon-crimson: #ff459b; /* Shifted to meet 4.5:1 WCAG contrast limit */
+  --neon-crimson-glow: rgba(255, 69, 155, 0.3);
   
-  /* Text colors */
+  /* Text colors (Contrast optimized) */
   --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-secondary: #cbd5e1; /* Boosted for WCAG AAA compliance */
+  --text-muted: #94a3b8; /* Boosted for WCAG AA compliance */
   
   /* UI Layout specs */
   --header-height: 70px;
@@ -47,6 +47,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 3px;
 }
 
 body {
