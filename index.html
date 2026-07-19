@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="StadiumFlow AI: accessible, live World Cup stadium wayfinding and operations support." />
+    <title>StadiumFlow AI · FIFA World Cup 2026</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to route planner</a>
+    <header class="topbar">
+      <div class="brand" aria-label="StadiumFlow AI home">
+        <span class="brand-mark" aria-hidden="true">SF</span>
+        <span><strong>StadiumFlow</strong><small>AI venue companion</small></span>
+      </div>
+      <div class="event-pill"><span class="pulse" aria-hidden="true"></span> FIFA World Cup 2026 · Venue demo</div>
+      <button class="button secondary compact" id="accessibility-toggle" type="button" aria-pressed="false">High contrast</button>
+    </header>
+
+    <main id="main-content" class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">LIVE, ACCESSIBLE WAYFINDING</p>
+          <h1 id="page-title">Every fan, the right place—before the crowd builds.</h1>
+          <p class="lede">A safety-first concierge and operations console that turns live gate conditions into clear, multilingual directions.</p>
+        </div>
+        <div class="match-card" aria-label="Current venue status">
+          <span>VENUE STATUS</span>
+          <strong id="venue-status">All systems monitored</strong>
+          <small id="updated-time">Live demo · updates instantly</small>
+        </div>
+      </section>
+
+      <nav class="mode-tabs" aria-label="View selection">
+        <button class="tab is-active" id="fan-tab" type="button" aria-controls="fan-panel" aria-selected="true">Fan concierge</button>
+        <button class="tab" id="ops-tab" type="button" aria-controls="ops-panel" aria-selected="false">Venue operations</button>
+      </nav>
+
+      <section id="fan-panel" class="panel-view" aria-labelledby="fan-tab">
+        <div class="fan-grid">
+          <section class="card planner" aria-labelledby="planner-title">
+            <div class="card-heading">
+              <div>
+                <p class="eyebrow">PERSONAL ROUTE</p>
+                <h2 id="planner-title">Where do you need to go?</h2>
+              </div>
+              <span class="secure-chip" title="Routes are calculated from approved venue data">Safety layer on</span>
+            </div>
+
+            <form id="route-form" novalidate>
+              <div class="field-grid">
+                <label>Starting point
+                  <select id="from" name="from">
+                    <option value="fanPlaza">Fan Plaza</option>
+                    <option value="parkingNorth">Parking North</option>
+                    <option value="transitHub">Transit Hub</option>
+                    <option value="gateA">Gate A</option>
+                    <option value="gateB">Gate B</option>
+                    <option value="gateC">Gate C</option>
+                    <option value="section102">Section 102</option>
+                    <option value="section204">Section 204</option>
+                  </select>
+                </label>
+                <label>Destination
+                  <select id="destination" name="destination">
+                    <option value="seat204">My seat · Section 204</option>
+                    <option value="seat102">My seat · Section 102</option>
+                    <option value="washroom">Accessible washroom</option>
+                    <option value="firstAid">First aid</option>
+                    <option value="exit">Nearest exit</option>
+                    <option value="parking">Parking North</option>
+                    <option value="transit">Transit hub</option>
+                  </select>
+                </label>
+                <label>Language
+                  <select id="language" name="language">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="pt">Português</option>
+                  </select>
+                </label>
+                <label class="checkbox-field"><input id="mobility" type="checkbox" /> <span><strong>Step-free route</strong><small>Avoid stairs and use accessible paths</small></span></label>
+              </div>
+              <label class="full-field" for="question">Ask StadiumFlow AI <span>(optional)</span>
+                <input id="question" name="question" maxlength="280" placeholder="e.g. I’m with a child and my ticket says Gate A" />
+                <small id="question-help">Do not enter personal or payment information.</small>
+              </label>
+              <div class="quick-actions" aria-label="Popular destinations">
+                <button type="button" class="quick" data-destination="washroom">Washroom</button>
+                <button type="button" class="quick" data-destination="firstAid">First aid</button>
+                <button type="button" class="quick" data-destination="parking">Parking</button>
+                <button type="button" class="quick" data-destination="transit">Transit</button>
+              </div>
+              <button class="button primary" type="submit">Get my safe route <span aria-hidden="true">→</span></button>
+            </form>
+          </section>
+
+          <section class="card guidance" aria-labelledby="guide-title">
+            <div class="card-heading compact-heading">
+              <div>
+                <p class="eyebrow">GENERATIVE AI CONCIERGE</p>
+                <h2 id="guide-title">Your live stadium guide</h2>
+              </div>
+              <span id="ai-source" class="ai-chip">Local safety brief</span>
+            </div>
+            <div class="assistant-message" id="assistant-message" role="status" aria-live="polite"></div>
+            <div class="route-summary" id="route-summary" aria-live="polite"></div>
+            <ol class="directions" id="directions" aria-label="Route directions"></ol>
+            <div class="guidance-actions">
+              <button class="button primary" id="start-guidance" type="button">Start step-by-step guidance</button>
+              <button class="button secondary" id="share-route" type="button">Copy route for a volunteer</button>
+            </div>
+            <p class="safety-note" id="safety-note">Need urgent help? Contact the nearest steward or emergency services now.</p>
+          </section>
+        </div>
+
+        <section class="map-section card" aria-labelledby="map-title">
+          <div class="map-heading">
+            <div>
+              <p class="eyebrow">LIVE VENUE MAP</p>
+              <h2 id="map-title">Crowd-aware entry recommendation</h2>
+            </div>
+            <span id="diversion-banner" class="diversion-banner">Monitoring gate capacity</span>
+          </div>
+          <div class="map-layout">
+            <div class="map-canvas" role="img" aria-label="Simplified venue map; current recommended path is highlighted in blue.">
+              <svg viewBox="0 0 700 300" aria-hidden="true" focusable="false">
+                <path class="map-route route-gateA" d="M80 145 L195 75 L320 150 L510 150" />
+                <path class="map-route route-gateB" d="M80 145 L195 150 L320 150 L510 150" />
+                <path class="map-route route-gateC" d="M80 145 L195 230 L320 150 L510 150" />
+                <path class="map-route route-parking" d="M30 60 L80 145" />
+                <path class="map-route route-transit" d="M30 250 L80 145" />
+                <rect x="315" y="95" width="205" height="110" rx="52" class="stadium-shape" />
+                <circle class="map-node" data-node="parkingNorth" cx="30" cy="60" r="12" />
+                <circle class="map-node" data-node="transitHub" cx="30" cy="250" r="12" />
+                <circle class="map-node" data-node="fanPlaza" cx="80" cy="145" r="15" />
+                <circle class="map-node gate-node" data-node="gateA" cx="195" cy="75" r="15" />
+                <circle class="map-node gate-node" data-node="gateB" cx="195" cy="150" r="15" />
+                <circle class="map-node gate-node" data-node="gateC" cx="195" cy="230" r="15" />
+                <circle class="map-node" data-node="concourse" cx="320" cy="150" r="13" />
+                <circle class="map-node" data-node="section102" cx="440" cy="110" r="11" />
+                <circle class="map-node" data-node="section204" cx="440" cy="190" r="11" />
+                <circle class="map-node" data-node="washroom" cx="560" cy="95" r="11" />
+                <circle class="map-node" data-node="firstAid" cx="590" cy="150" r="11" />
+                <circle class="map-node" data-node="exit" cx="560" cy="215" r="11" />
+                <text x="7" y="38">Parking</text><text x="7" y="280">Transit</text><text x="50" y="120">Fan Plaza</text>
+                <text x="165" y="50">Gate A</text><text x="165" y="135">Gate B</text><text x="165" y="265">Gate C</text>
+                <text x="375" y="155">MAIN CONCOURSE</text><text x="415" y="82">102</text><text x="415" y="225">204</text>
+                <text x="535" y="72">WC</text><text x="568" y="130">Aid</text><text x="535" y="250">Exit</text>
+              </svg>
+            </div>
+            <div class="gate-list" id="gate-list" aria-label="Live gate capacity"></div>
+          </div>
+          <p class="map-caption">Routes adapt when a gate becomes busy. A steward always has final authority during an incident.</p>
+        </section>
+      </section>
+
+      <section id="ops-panel" class="panel-view" aria-labelledby="ops-tab" hidden>
+        <div class="ops-grid">
+          <section class="card" aria-labelledby="control-title">
+            <p class="eyebrow">OPERATIONS CONSOLE</p>
+            <h2 id="control-title">Gate capacity controls</h2>
+            <p class="muted">Use the demo controls to publish safe routing guidance to every fan view.</p>
+            <div class="capacity-controls" id="capacity-controls"></div>
+            <div class="ops-actions">
+              <button class="button primary" id="apply-conditions" type="button">Publish live conditions</button>
+              <button class="button secondary" id="reset-conditions" type="button">Reset demo</button>
+            </div>
+          </section>
+          <section class="card scenarios" aria-labelledby="scenario-title">
+            <p class="eyebrow">INCIDENT PLAYBOOKS</p>
+            <h2 id="scenario-title">One-click response tests</h2>
+            <button class="scenario" type="button" data-scenario="overcrowded"><span>01</span><strong>Gate A overcrowded</strong><small>Divert incoming fans to the lowest-risk entry.</small></button>
+            <button class="scenario" type="button" data-scenario="medical"><span>02</span><strong>First-aid request</strong><small>Prioritise a step-free route and notify the nearest steward.</small></button>
+            <button class="scenario" type="button" data-scenario="normal"><span>03</span><strong>Normal arrival</strong><small>Restore balanced crowd flow.</small></button>
+          </section>
+          <section class="card activity" aria-labelledby="activity-title">
+            <p class="eyebrow">AUDIT TRAIL</p>
+            <h2 id="activity-title">Recent operational decisions</h2>
+            <ul id="activity-log" class="activity-log" aria-live="polite"></ul>
+          </section>
+        </div>
+      </section>
+    </main>
+    <footer>Prototype data only · Designed for accessibility, privacy, and human-in-the-loop operations.</footer>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

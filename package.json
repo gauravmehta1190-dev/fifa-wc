@@ -1,0 +1,11 @@
+{
+  "name": "stadiumflow-ai",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline-first FIFA World Cup 2026 stadium operations concierge",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test core.test.js"
+  }
+}
